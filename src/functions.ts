@@ -15,23 +15,34 @@ configDotenv();
 const s3Client = new S3Client({
   region: process.env.REGION,
   credentials: {
-    accessKeyId: process.env.ACCESS_KEY || "",
-    secretAccessKey: process.env.SECRET_ACCESS_KEY || "",
+    accessKeyId: process.env.ACCESS_KEY,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY,
   },
 });
 
-const sendFileToAWS = async (fileName: any, filePath: any) => {
+console.log("Bucket Name:", process.env.BUCKET_NAME);
+console.log("AWS Region:", process.env.REGION);
+console.log("Access Key:", process.env.ACCESS_KEY);
+
+const sendFileToAWS = async (fileName: string, filePath: string) => {
   try {
+
+    console.log('file name -----', fileName);
+    console.log('file path -----', filePath);
+    
+    
     const uploadParams: any = {
       Bucket: process.env.BUCKET_NAME,
-      file: fileName,
+      Key: fileName,
       Body: fs.createReadStream(filePath),
     };
+    // console.log(uploadParams);
+    
     await s3Client.send(new PutObjectCommand(uploadParams)).then((data) => {
       console.log(data);
     });
   } catch (error: any) {
-    console.log(error);
+    console.log("failed to send file to aws -----------", error);
   }
 };
 
